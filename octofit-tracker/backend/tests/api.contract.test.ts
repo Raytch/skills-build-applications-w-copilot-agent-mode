@@ -70,6 +70,20 @@ describe('OctoFit API contract', () => {
     expect(listedTeam).toMatchObject({ name: 'Octocats', mascot: 'Mona' });
     expect(listedTeam.members).toContainEqual({ _id: member._id.toString(), name: 'Mona' });
   });
+  it('normalizes member IDs before deduplicating team members', async () => {
+    const memberId = new mongoose.Types.ObjectId('abcdefabcdefabcdefabcdef');
+    await User.create({ _id: memberId, name: 'Mona', email: 'mona@example.com', fitnessGoal: 'endurance' });
+
+    const created = await request(app).post('/api/teams').send({
+      name: 'Octocats',
+      mascot: 'Mona',
+      members: [memberId.toString().toLowerCase(), memberId.toString().toUpperCase()],
+    });
+
+    expect(created.status).toBe(201);
+    const team = await Team.findById(created.body.team._id);
+    expect(team?.members.map((id) => id.toString())).toEqual([memberId.toString()]);
+  });
   it('orders leaderboard entries by total points', async () => {
     const mona = await createUserAndTeam('Mona', 'mona@example.com', 'Mona', 'Octocats');
     const hubot = await createUserAndTeam('Hubot', 'hubot@example.com', 'Hubot', 'Robocats');
