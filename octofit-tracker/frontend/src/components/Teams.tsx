@@ -5,7 +5,7 @@ type Team = {
   _id?: string;
   name: string;
   mascot?: string;
-  members?: Array<string | { name?: string }>;
+  members?: Array<string | { _id?: string; name?: string }>;
 };
 type TeamState =
   | { status: 'loading' }
@@ -49,7 +49,9 @@ export default function Teams() {
                 {team.members && team.members.length > 0 && (
                   <ul className="list-unstyled mb-0 ms-3">
                     {team.members.map((member, index) => (
-                      <li key={`${team._id ?? team.name}-member-${index}`}>
+                      <li key={typeof member === 'string'
+                        ? `${team._id ?? team.name}-member-${index}`
+                        : member._id ?? `${team._id ?? team.name}-member-${index}`}>
                         {typeof member === 'string' ? member : member.name ?? 'Member'}
                       </li>
                     ))}

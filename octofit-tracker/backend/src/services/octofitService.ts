@@ -44,7 +44,7 @@ export async function createActivity(input: unknown) {
 }
 
 export async function listTeams() {
-  return Team.find().lean();
+  return Team.find().populate('members', 'name').lean();
 }
 
 export async function createTeam(input: unknown) {

@@ -68,7 +68,7 @@ describe('OctoFit API contract', () => {
     expect(listed.body.teams).toHaveLength(2);
     const listedTeam = listed.body.teams.find((team: { name: string }) => team.name === 'Octocats');
     expect(listedTeam).toMatchObject({ name: 'Octocats', mascot: 'Mona' });
-    expect(listedTeam.members.map((id: string) => id.toString())).toContain(member._id.toString());
+    expect(listedTeam.members).toContainEqual({ _id: member._id.toString(), name: 'Mona' });
   });
   it('orders leaderboard entries by total points', async () => {
     const mona = await createUserAndTeam('Mona', 'mona@example.com', 'Mona', 'Octocats');
