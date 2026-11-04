@@ -64,9 +64,11 @@ export async function createTeam(input: unknown) {
     throw Object.assign(new Error('Invalid team input'), { status: 400 });
   }
 
-  const memberIds = members as string[];
+  const memberIds = [...new Set(
+    (members as string[]).map((member) => new Types.ObjectId(member).toHexString()),
+  )];
   const existingMembers = await User.find({ _id: { $in: memberIds } }).select('_id').lean();
-  if (existingMembers.length !== new Set(memberIds).size) {
+  if (existingMembers.length !== memberIds.length) {
     throw Object.assign(new Error('One or more team members were not found'), { status: 400 });
   }
 
