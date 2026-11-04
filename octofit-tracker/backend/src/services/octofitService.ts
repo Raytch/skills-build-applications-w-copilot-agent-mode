@@ -72,7 +72,13 @@ export async function createTeam(input: unknown) {
     throw Object.assign(new Error('One or more team members were not found'), { status: 400 });
   }
 
-  return Team.create({ name: name.trim(), mascot: mascot.trim(), members: memberIds });
+  const team = await Team.create({ name: name.trim(), mascot: mascot.trim(), members: memberIds });
+  await Team.updateMany(
+    { _id: { $ne: team._id }, members: { $in: memberIds } },
+    { $pull: { members: { $in: memberIds } } },
+  );
+  await User.updateMany({ _id: { $in: memberIds } }, { $set: { team: team._id } });
+  return team;
 }
 
 export async function getLeaderboard() {
